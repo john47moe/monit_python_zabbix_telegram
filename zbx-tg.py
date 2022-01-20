@@ -14,7 +14,7 @@ import hashlib
 import subprocess
 #import sqlite3
 from os.path import dirname
-import zbxtg_settings
+import zbx-tg-setting
 
 
 class Cache:
@@ -452,8 +452,8 @@ def age2sec(age_str):
 
 def main():
 
-    tmp_dir = zbxtg_settings.zbx_tg_tmp_dir
-    if tmp_dir == "/tmp/" + zbxtg_settings.zbx_tg_prefix:
+    tmp_dir = zbx-tg-setting.zbx_tg_tmp_dir
+    if tmp_dir == "/tmp/" + zbx-tg-setting.zbx_tg_prefix:
         print_message("WARNING: it is strongly recommended to change `zbx_tg_tmp_dir` variable in config!!!")
         print_message("https://github.com/ableev/Zabbix-in-Telegram/wiki/Change-zbx_tg_tmp_dir-in-settings")
 
@@ -572,40 +572,40 @@ def main():
     zbx_subject = args[2]
     zbx_body = args[3]
 
-    tg = TelegramAPI(key=zbxtg_settings.tg_key)
+    tg = TelegramAPI(key=zbx-tg-setting.tg_key)
 
     tg.tmp_dir = tmp_dir
     tg.tmp_uids = tmp_uids
 
-    if zbxtg_settings.proxy_to_tg:
-        proxy_to_tg = zbxtg_settings.proxy_to_tg
+    if zbx-tg-setting.proxy_to_tg:
+        proxy_to_tg = zbx-tg-setting.proxy_to_tg
         if not proxy_to_tg.find("http") and not proxy_to_tg.find("socks"):
             proxy_to_tg = "https://" + proxy_to_tg
         tg.proxies = {
-            "https": "{0}".format(zbxtg_settings.proxy_to_tg),
+            "https": "{0}".format(zbx-tg-setting.proxy_to_tg),
         }
 
-    zbx = ZabbixAPI(server=zbxtg_settings.zbx_server, username=zbxtg_settings.zbx_api_user,
-                    password=zbxtg_settings.zbx_api_pass)
+    zbx = ZabbixAPI(server=zbx-tg-setting.zbx_server, username=zbx-tg-setting.zbx_api_user,
+                    password=zbx-tg-setting.zbx_api_pass)
 
     zbx.tmp_dir = tmp_dir
 
-    if zbxtg_settings.proxy_to_zbx:
+    if zbx-tg-setting.proxy_to_zbx:
         zbx.proxies = {
-            "http": "http://{0}/".format(zbxtg_settings.proxy_to_zbx),
-            "https": "https://{0}/".format(zbxtg_settings.proxy_to_zbx)
+            "http": "http://{0}/".format(zbx-tg-setting.proxy_to_zbx),
+            "https": "https://{0}/".format(zbx-tg-setting.proxy_to_zbx)
         }
 
     # https://github.com/ableev/Zabbix-in-Telegram/issues/55
     try:
-        if zbxtg_settings.zbx_basic_auth:
-            zbx.basic_auth_user = zbxtg_settings.zbx_basic_auth_user
-            zbx.basic_auth_pass = zbxtg_settings.zbx_basic_auth_pass
+        if zbx-tg-setting.zbx_basic_auth:
+            zbx.basic_auth_user = zbx-tg-setting.zbx_basic_auth_user
+            zbx.basic_auth_pass = zbx-tg-setting.zbx_basic_auth_pass
     except:
         pass
 
     try:
-        zbx_api_verify = zbxtg_settings.zbx_api_verify
+        zbx_api_verify = zbx-tg-setting.zbx_api_verify
         zbx.verify = zbx_api_verify
     except:
         pass
@@ -613,12 +613,12 @@ def main():
     map = Maps()
     # api key to resolve address to coordinates via google api
     try:
-        if zbxtg_settings.google_maps_api_key:
-            map.key = zbxtg_settings.google_maps_api_key
-        if zbxtg_settings.proxy_to_tg:
+        if zbx-tg-setting.google_maps_api_key:
+            map.key = zbx-tg-setting.google_maps_api_key
+        if zbx-tg-setting.proxy_to_tg:
             map.proxies = {
-                "http": "http://{0}/".format(zbxtg_settings.proxy_to_tg),
-                "https": "https://{0}/".format(zbxtg_settings.proxy_to_tg)
+                "http": "http://{0}/".format(zbx-tg-setting.proxy_to_tg),
+                "https": "https://{0}/".format(zbx-tg-setting.proxy_to_tg)
             }
     except:
         pass
@@ -627,9 +627,9 @@ def main():
     zbxtg_body_text = []
 
     for line in zbxtg_body:
-        if line.find(zbxtg_settings.zbx_tg_prefix) > -1:
+        if line.find(zbx-tg-setting.zbx_tg_prefix) > -1:
             setting = re.split("[\s:=]+", line, maxsplit=1)
-            key = setting[0].replace(zbxtg_settings.zbx_tg_prefix + ";", "")
+            key = setting[0].replace(zbx-tg-setting.zbx_tg_prefix + ";", "")
             if key not in settings_description:
                 if "--debug" in args:
                     print_message("[ERROR] There is no '{0}' method, use --features to get help")
@@ -787,19 +787,19 @@ def main():
 
     # add signature, turned off by default, you can turn it on in config
     try:
-        if "--signature" in args or settings["signature"] or zbxtg_settings.zbx_tg_signature\
+        if "--signature" in args or settings["signature"] or zbx-tg-setting.zbx_tg_signature\
                 and not "--signature_disable" in args and not settings["signature_disable"]:
             zbxtg_body_text.append("--")
-            zbxtg_body_text.append(zbxtg_settings.zbx_server)
+            zbxtg_body_text.append(zbx-tg-setting.zbx_server)
     except:
         pass
 
     # replace text with emojis
-    if hasattr(zbxtg_settings, "emoji_map"):
+    if hasattr(zbx-tg-setting, "emoji_map"):
         zbxtg_body_text_emoji_support = []
         for l in zbxtg_body_text:
             l_new = l
-            for k, v in zbxtg_settings.emoji_map.items():
+            for k, v in zbx-tg-setting.emoji_map.items():
                 l_new = l_new.replace("{{" + k + "}}", v)
             zbxtg_body_text_emoji_support.append(l_new)
         zbxtg_body_text = zbxtg_body_text_emoji_support
